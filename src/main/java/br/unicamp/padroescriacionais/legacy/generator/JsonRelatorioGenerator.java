@@ -2,7 +2,7 @@ package br.unicamp.padroescriacionais.legacy.generator;
 
 import br.unicamp.padroescriacionais.legacy.domain.Relatorio;
 
-public class JsonRelatorioGenerator {
+public class JsonRelatorioGenerator implements RelatorioGenerator {
 
     public String gerar(Relatorio relatorio) {
         StringBuilder sb = new StringBuilder();

@@ -1,23 +1,17 @@
 package br.unicamp.padroescriacionais.legacy.service;
 
+import br.unicamp.padroescriacionais.legacy.config.ConfiguracaoGlobal;
 import br.unicamp.padroescriacionais.legacy.domain.ConfiguracaoSistema;
 import br.unicamp.padroescriacionais.legacy.domain.FormatoRelatorio;
 import br.unicamp.padroescriacionais.legacy.domain.Relatorio;
 import br.unicamp.padroescriacionais.legacy.domain.TipoRelatorio;
-import br.unicamp.padroescriacionais.legacy.generator.CsvRelatorioGenerator;
-import br.unicamp.padroescriacionais.legacy.generator.JsonRelatorioGenerator;
-import br.unicamp.padroescriacionais.legacy.generator.PdfRelatorioGenerator;
+import br.unicamp.padroescriacionais.legacy.factory.RelatorioGeneratorFactory;
+import br.unicamp.padroescriacionais.legacy.factory.RelatorioGeneratorFactoryProvider;
+import br.unicamp.padroescriacionais.legacy.generator.RelatorioGenerator;
 
 import java.time.LocalDateTime;
 
 public class RelatorioService {
-
-    private ConfiguracaoSistema configuracao = new ConfiguracaoSistema(
-            "Empresa XPTO",
-            "DEV",
-            "/tmp/relatorios",
-            false
-    );
 
     public Relatorio criarRelatorio(TipoRelatorio tipo) {
         String titulo;
@@ -45,23 +39,15 @@ public class RelatorioService {
 
     public String gerarRelatorio(TipoRelatorio tipo, FormatoRelatorio formato) {
         Relatorio relatorio = criarRelatorio(tipo);
+        ConfiguracaoSistema configuracao = ConfiguracaoGlobal.getInstancia().getConfiguracao();
 
         if (configuracao.isDebugAtivo()) {
             System.out.println("[DEBUG-RelatorioService] Gerando: " + tipo + " -> " + formato);
         }
 
-        if (formato == FormatoRelatorio.PDF) {
-            PdfRelatorioGenerator generator = new PdfRelatorioGenerator();
-            return generator.gerar(relatorio);
-        } else if (formato == FormatoRelatorio.CSV) {
-            CsvRelatorioGenerator generator = new CsvRelatorioGenerator();
-            return generator.gerar(relatorio);
-        } else if (formato == FormatoRelatorio.JSON) {
-            JsonRelatorioGenerator generator = new JsonRelatorioGenerator();
-            return generator.gerar(relatorio);
-        } else {
-            throw new IllegalArgumentException("Formato desconhecido: " + formato);
-        }
+        RelatorioGeneratorFactory factory = RelatorioGeneratorFactoryProvider.obterFactory(formato);
+        RelatorioGenerator generator = factory.criarGenerator();
+        return generator.gerar(relatorio);
     }
 
     private String gerarConteudoVendas() {

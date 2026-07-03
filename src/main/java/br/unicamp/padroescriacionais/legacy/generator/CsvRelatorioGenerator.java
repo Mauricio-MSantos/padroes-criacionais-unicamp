@@ -2,7 +2,7 @@ package br.unicamp.padroescriacionais.legacy.generator;
 
 import br.unicamp.padroescriacionais.legacy.domain.Relatorio;
 
-public class CsvRelatorioGenerator {
+public class CsvRelatorioGenerator implements RelatorioGenerator{
 
     public String gerar(Relatorio relatorio) {
         StringBuilder sb = new StringBuilder();
